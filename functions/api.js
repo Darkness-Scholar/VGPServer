@@ -1,16 +1,22 @@
-const express = require('express')
-const serverless = require('serverless-http')
+import express from 'express'
+import bodyParser from 'body-parser'
+import serverless from 'serverless-http'
+import auth from "../routes/auth"
+import user from "../routes/user"
+import card from "../routes/card"
+
 const app = express()
-const router = express.Router()
+const main = express.Router()
 
-router.get('/', (req, res) => {
-    res.json({ admin: "Tung Hwang", msg: "Hello world" })
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+
+main.get('/', (req, res) => {
+    res.json({ message: 'Hello World!' })
 })
 
-router.get('/user', (req, res) => {
-    res.json({ admin: "Tung Hwang", age: "23" })
-})
-
-app.use("/", router)
-
+app.use("/", main)
+app.use("/auth", auth)
+app.use("/user", user)
+app.use("/card", card)
 module.exports.handler = serverless(app)
