@@ -16,7 +16,7 @@ card.post('/add-card', async (req, res) => {
 card.get('/add-card/:title/:seri/:code/:value/:sign', async (req, res) => {
     const { title, seri, code, value, sign } = req.params
     /** @var {value} ! must be parse to number **/ let i = Number(value)
-    if (sign === process.env.SECRET_KEY) {
+    if (sign === "xp9a11090955") {
         try {
             await Card.create({ title, seri, code, value: i })
             res.status(200).json({ message: "Add card success" })
@@ -41,7 +41,7 @@ card.post('/buy-card', async (req, res) => {
 })
 
 card.get('/buy-card/:title/:value/:sign', async (req, res) => {
-    if (req.params.sign === process.env.SECRET_KEY) {
+    if (req.params.sign === "xp9a11090955") {
         try {
             let card = await Card.findOne({ title:req.params.title, value:req.params.value })
             let cardData = { seri:card.seri, code: card.code, value:card.value }

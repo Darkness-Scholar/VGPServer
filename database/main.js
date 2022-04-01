@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-mongoose.connect(process.env.MONGODB, {
+mongoose.connect("mongodb+srv://tungxm123:123qwe@cluster0.vtigv.mongodb.net/appData", {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
