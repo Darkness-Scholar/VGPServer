@@ -1,8 +1,9 @@
 import { Card } from '../database/main'
+import { verifyToken } from "./shield"
 import express from 'express'
 const card = express.Router()
 
-card.post('/add-card', async (req, res) => {
+card.post('/add', async (req, res) => {
     const { title, seri, code, value } = req.body
     /** @const {value} ! must be parse to number **/ let i = Number(value)
     try {
@@ -13,22 +14,19 @@ card.post('/add-card', async (req, res) => {
     }
 })
 
-card.get('/add-card/:title/:seri/:code/:value/:sign', async (req, res) => {
+card.get('/add/:title/:seri/:code/:value/:sign', async (req, res) => {
     const { title, seri, code, value, sign } = req.params
     /** @var {value} ! must be parse to number **/ let i = Number(value)
-    if (sign === "xp9a11090955") {
-        try {
-            await Card.create({ title, seri, code, value: i })
-            res.status(200).json({ message: "Add card success" })
-        } catch (err) {
-            res.status(500).json({ err, message: "Thẻ đã tồn tại" })
-        }
-    } else {
-        res.status(500).json({ message: "Sign is not correct" })
+    try {
+        let token = await verifyToken(sign)
+        await Card.create({ title, seri, code, value: i })
+        res.status(200).json({ message: "Add card success" })
+    } catch (err) {
+        res.status(500).json({ err })
     }
 })
 
-card.post('/buy-card', async (req, res) => {
+card.post('/buy', async (req, res) => {
     let { title, value } = req.body
     try {
         let card = await Card.findOne({ title, value })
@@ -40,7 +38,7 @@ card.post('/buy-card', async (req, res) => {
     }
 })
 
-card.get('/buy-card/:title/:value/:sign', async (req, res) => {
+card.get('/buy/:title/:value/:sign', async (req, res) => {
     if (req.params.sign === "xp9a11090955") {
         try {
             let card = await Card.findOne({ title:req.params.title, value:req.params.value })
@@ -53,7 +51,7 @@ card.get('/buy-card/:title/:value/:sign', async (req, res) => {
     } else return res.status(500).json({ message: "Signature is not valid" })
 })
 
-card.get("/get-card/:title", async (req, res) => {
+card.get("/get/:title", async (req, res) => {
     let { title } = req.params
     try {
         let cards = await Card.find({ title })
