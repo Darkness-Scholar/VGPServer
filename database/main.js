@@ -12,9 +12,11 @@ const Schema = mongoose.Schema
 
 const CardSchema = new Schema({
     title: { type: String, required: true },
-    seri: { type: String, required: true, unique: true },
+    value: { type: Number, required: true },
+    price: { type: Number, required: true },
     code: { type: String, required: true, unique: true },
-    value: { type: Number, required: true }
+    seri: { type: String, required: true, unique: true },
+    
 }, { timestamps: true, collection: 'cards' })
 
 const UserSchema = new Schema({

@@ -4,10 +4,11 @@ import express from 'express'
 const card = express.Router()
 
 card.post('/add', async (req, res) => {
-    const { title, seri, code, value } = req.body
-    /** @const {value} ! must be parse to number **/ let i = Number(value)
+    const { title, value, price, code, seri } = req.body
+    /** @const {string} value ! must be parse to number **/ let nValue = Number(value)
+    /** @const {string} price ! must be parse to number **/ let nPrice = Number(price)
     try {
-        await Card.create({ title, seri, code, value: i })
+        await Card.create({ title, value:nValue, price:nPrice, code, seri })
         res.status(200).json({ message: "Add card success" })
     } catch (err) {
         return res.status(500).json({ err, message: "Thẻ đã tồn tại" })
@@ -22,7 +23,7 @@ card.get('/add/:title/:seri/:code/:value/:sign', async (req, res) => {
         await Card.create({ title, seri, code, value: i })
         res.status(200).json({ message: "Add card success" })
     } catch (err) {
-        res.status(500).json({ err })
+        res.status(500).json(err)
     }
 })
 
@@ -49,6 +50,15 @@ card.get('/buy/:title/:value/:sign', async (req, res) => {
             res.status(500).json({ message: "Hết hàng" })
         }
     } else return res.status(500).json({ message: "Signature is not valid" })
+})
+
+card.get("/get", async (req, res) => {
+    try {
+        let cards = await Card.find()
+        res.status(200).json({cards, message: "Get cards success" })
+    } catch (err) {
+        res.status(500).json({ message: `Failure: Get ${title} cards`, err })
+    }
 })
 
 card.get("/get/:title", async (req, res) => {

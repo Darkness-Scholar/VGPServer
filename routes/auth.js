@@ -1,7 +1,7 @@
 import express from 'express'
 import { User, Token } from '../database/main'
 import { ACCESS_TOKEN_LIFECYCLE, REFRESH_TOKEN_LIFECYCLE } from '../database/env'
-import { generateToken, authChecking } from './shield'
+import { generateToken, verifyToken, authChecking } from './shield'
 
 const auth = express.Router()
 
@@ -70,8 +70,14 @@ auth.get('/register', async (req, res) => {
     }
 })
 
-auth.post('/verify', (req, res) => {
-    res.json({ message: `Verify Token` })
+auth.post('/verify', async (req, res) => {
+    let { token } = req.body
+    try {
+        let encode = await verifyToken(token)
+        res.status(200).json(encode)
+    } catch (err) {
+        res.status(500).json(err)
+    }
 })
 
 export default auth

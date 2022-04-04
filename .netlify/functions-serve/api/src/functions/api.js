@@ -17565,8 +17565,8 @@ var require_send = __commonJS({
     function contentRange(type, size, range) {
       return type + " " + (range ? range.start + "-" + range.end : "*") + "/" + size;
     }
-    function createHtmlDocument(title, body) {
-      return '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<title>' + title + "</title>\n</head>\n<body>\n<pre>" + body + "</pre>\n</body>\n</html>\n";
+    function createHtmlDocument(title2, body) {
+      return '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<title>' + title2 + "</title>\n</head>\n<body>\n<pre>" + body + "</pre>\n</body>\n</html>\n";
     }
     function decode(path2) {
       try {
@@ -20427,8 +20427,8 @@ var require_serve_static = __commonJS({
       }
       return i > 1 ? "/" + str.substr(i) : str;
     }
-    function createHtmlDocument(title, body) {
-      return '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<title>' + title + "</title>\n</head>\n<body>\n<pre>" + body + "</pre>\n</body>\n</html>\n";
+    function createHtmlDocument(title2, body) {
+      return '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<title>' + title2 + "</title>\n</head>\n<body>\n<pre>" + body + "</pre>\n</body>\n</html>\n";
     }
     function createNotFoundDirectoryListener() {
       return function notFound() {
@@ -20532,6 +20532,284 @@ var require_express2 = __commonJS({
   "node_modules/express/index.js"(exports2, module2) {
     "use strict";
     module2.exports = require_express();
+  }
+});
+
+// node_modules/object-assign/index.js
+var require_object_assign = __commonJS({
+  "node_modules/object-assign/index.js"(exports2, module2) {
+    "use strict";
+    var getOwnPropertySymbols = Object.getOwnPropertySymbols;
+    var hasOwnProperty = Object.prototype.hasOwnProperty;
+    var propIsEnumerable = Object.prototype.propertyIsEnumerable;
+    function toObject(val) {
+      if (val === null || val === void 0) {
+        throw new TypeError("Object.assign cannot be called with null or undefined");
+      }
+      return Object(val);
+    }
+    function shouldUseNative() {
+      try {
+        if (!Object.assign) {
+          return false;
+        }
+        var test1 = new String("abc");
+        test1[5] = "de";
+        if (Object.getOwnPropertyNames(test1)[0] === "5") {
+          return false;
+        }
+        var test2 = {};
+        for (var i = 0; i < 10; i++) {
+          test2["_" + String.fromCharCode(i)] = i;
+        }
+        var order2 = Object.getOwnPropertyNames(test2).map(function(n) {
+          return test2[n];
+        });
+        if (order2.join("") !== "0123456789") {
+          return false;
+        }
+        var test3 = {};
+        "abcdefghijklmnopqrst".split("").forEach(function(letter) {
+          test3[letter] = letter;
+        });
+        if (Object.keys(Object.assign({}, test3)).join("") !== "abcdefghijklmnopqrst") {
+          return false;
+        }
+        return true;
+      } catch (err) {
+        return false;
+      }
+    }
+    module2.exports = shouldUseNative() ? Object.assign : function(target, source) {
+      var from;
+      var to = toObject(target);
+      var symbols;
+      for (var s = 1; s < arguments.length; s++) {
+        from = Object(arguments[s]);
+        for (var key in from) {
+          if (hasOwnProperty.call(from, key)) {
+            to[key] = from[key];
+          }
+        }
+        if (getOwnPropertySymbols) {
+          symbols = getOwnPropertySymbols(from);
+          for (var i = 0; i < symbols.length; i++) {
+            if (propIsEnumerable.call(from, symbols[i])) {
+              to[symbols[i]] = from[symbols[i]];
+            }
+          }
+        }
+      }
+      return to;
+    };
+  }
+});
+
+// node_modules/cors/lib/index.js
+var require_lib3 = __commonJS({
+  "node_modules/cors/lib/index.js"(exports2, module2) {
+    (function() {
+      "use strict";
+      var assign = require_object_assign();
+      var vary = require_vary();
+      var defaults = {
+        origin: "*",
+        methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+        preflightContinue: false,
+        optionsSuccessStatus: 204
+      };
+      function isString(s) {
+        return typeof s === "string" || s instanceof String;
+      }
+      function isOriginAllowed(origin, allowedOrigin) {
+        if (Array.isArray(allowedOrigin)) {
+          for (var i = 0; i < allowedOrigin.length; ++i) {
+            if (isOriginAllowed(origin, allowedOrigin[i])) {
+              return true;
+            }
+          }
+          return false;
+        } else if (isString(allowedOrigin)) {
+          return origin === allowedOrigin;
+        } else if (allowedOrigin instanceof RegExp) {
+          return allowedOrigin.test(origin);
+        } else {
+          return !!allowedOrigin;
+        }
+      }
+      function configureOrigin(options, req) {
+        var requestOrigin = req.headers.origin, headers = [], isAllowed;
+        if (!options.origin || options.origin === "*") {
+          headers.push([{
+            key: "Access-Control-Allow-Origin",
+            value: "*"
+          }]);
+        } else if (isString(options.origin)) {
+          headers.push([{
+            key: "Access-Control-Allow-Origin",
+            value: options.origin
+          }]);
+          headers.push([{
+            key: "Vary",
+            value: "Origin"
+          }]);
+        } else {
+          isAllowed = isOriginAllowed(requestOrigin, options.origin);
+          headers.push([{
+            key: "Access-Control-Allow-Origin",
+            value: isAllowed ? requestOrigin : false
+          }]);
+          headers.push([{
+            key: "Vary",
+            value: "Origin"
+          }]);
+        }
+        return headers;
+      }
+      function configureMethods(options) {
+        var methods = options.methods;
+        if (methods.join) {
+          methods = options.methods.join(",");
+        }
+        return {
+          key: "Access-Control-Allow-Methods",
+          value: methods
+        };
+      }
+      function configureCredentials(options) {
+        if (options.credentials === true) {
+          return {
+            key: "Access-Control-Allow-Credentials",
+            value: "true"
+          };
+        }
+        return null;
+      }
+      function configureAllowedHeaders(options, req) {
+        var allowedHeaders = options.allowedHeaders || options.headers;
+        var headers = [];
+        if (!allowedHeaders) {
+          allowedHeaders = req.headers["access-control-request-headers"];
+          headers.push([{
+            key: "Vary",
+            value: "Access-Control-Request-Headers"
+          }]);
+        } else if (allowedHeaders.join) {
+          allowedHeaders = allowedHeaders.join(",");
+        }
+        if (allowedHeaders && allowedHeaders.length) {
+          headers.push([{
+            key: "Access-Control-Allow-Headers",
+            value: allowedHeaders
+          }]);
+        }
+        return headers;
+      }
+      function configureExposedHeaders(options) {
+        var headers = options.exposedHeaders;
+        if (!headers) {
+          return null;
+        } else if (headers.join) {
+          headers = headers.join(",");
+        }
+        if (headers && headers.length) {
+          return {
+            key: "Access-Control-Expose-Headers",
+            value: headers
+          };
+        }
+        return null;
+      }
+      function configureMaxAge(options) {
+        var maxAge = (typeof options.maxAge === "number" || options.maxAge) && options.maxAge.toString();
+        if (maxAge && maxAge.length) {
+          return {
+            key: "Access-Control-Max-Age",
+            value: maxAge
+          };
+        }
+        return null;
+      }
+      function applyHeaders(headers, res) {
+        for (var i = 0, n = headers.length; i < n; i++) {
+          var header = headers[i];
+          if (header) {
+            if (Array.isArray(header)) {
+              applyHeaders(header, res);
+            } else if (header.key === "Vary" && header.value) {
+              vary(res, header.value);
+            } else if (header.value) {
+              res.setHeader(header.key, header.value);
+            }
+          }
+        }
+      }
+      function cors2(options, req, res, next) {
+        var headers = [], method = req.method && req.method.toUpperCase && req.method.toUpperCase();
+        if (method === "OPTIONS") {
+          headers.push(configureOrigin(options, req));
+          headers.push(configureCredentials(options, req));
+          headers.push(configureMethods(options, req));
+          headers.push(configureAllowedHeaders(options, req));
+          headers.push(configureMaxAge(options, req));
+          headers.push(configureExposedHeaders(options, req));
+          applyHeaders(headers, res);
+          if (options.preflightContinue) {
+            next();
+          } else {
+            res.statusCode = options.optionsSuccessStatus;
+            res.setHeader("Content-Length", "0");
+            res.end();
+          }
+        } else {
+          headers.push(configureOrigin(options, req));
+          headers.push(configureCredentials(options, req));
+          headers.push(configureExposedHeaders(options, req));
+          applyHeaders(headers, res);
+          next();
+        }
+      }
+      function middlewareWrapper(o) {
+        var optionsCallback = null;
+        if (typeof o === "function") {
+          optionsCallback = o;
+        } else {
+          optionsCallback = function(req, cb) {
+            cb(null, o);
+          };
+        }
+        return function corsMiddleware(req, res, next) {
+          optionsCallback(req, function(err, options) {
+            if (err) {
+              next(err);
+            } else {
+              var corsOptions = assign({}, defaults, options);
+              var originCallback = null;
+              if (corsOptions.origin && typeof corsOptions.origin === "function") {
+                originCallback = corsOptions.origin;
+              } else if (corsOptions.origin) {
+                originCallback = function(origin, cb) {
+                  cb(null, corsOptions.origin);
+                };
+              }
+              if (originCallback) {
+                originCallback(req.headers.origin, function(err2, origin) {
+                  if (err2 || !origin) {
+                    next(err2);
+                  } else {
+                    corsOptions.origin = origin;
+                    cors2(corsOptions, req, res, next);
+                  }
+                });
+              } else {
+                next();
+              }
+            }
+          });
+        };
+      }
+      module2.exports = middlewareWrapper;
+    })();
   }
 });
 
@@ -33098,7 +33376,7 @@ var require_db2 = __commonJS({
 });
 
 // node_modules/webidl-conversions/lib/index.js
-var require_lib3 = __commonJS({
+var require_lib4 = __commonJS({
   "node_modules/webidl-conversions/lib/index.js"(exports2) {
     "use strict";
     function makeException(ErrorType, message, options) {
@@ -35158,7 +35436,7 @@ var require_urlencoded2 = __commonJS({
 var require_Function = __commonJS({
   "node_modules/whatwg-url/lib/Function.js"(exports2) {
     "use strict";
-    var conversions = require_lib3();
+    var conversions = require_lib4();
     var utils = require_utils5();
     exports2.convert = (globalObject, value, { context = "The provided value" } = {}) => {
       if (typeof value !== "function") {
@@ -35314,7 +35592,7 @@ var require_URLSearchParams_impl = __commonJS({
 var require_URLSearchParams = __commonJS({
   "node_modules/whatwg-url/lib/URLSearchParams.js"(exports2) {
     "use strict";
-    var conversions = require_lib3();
+    var conversions = require_lib4();
     var utils = require_utils5();
     var Function2 = require_Function();
     var newObjectInRealm = utils.newObjectInRealm;
@@ -35867,7 +36145,7 @@ var require_URL_impl = __commonJS({
 var require_URL = __commonJS({
   "node_modules/whatwg-url/lib/URL.js"(exports2) {
     "use strict";
-    var conversions = require_lib3();
+    var conversions = require_lib4();
     var utils = require_utils5();
     var implSymbol = utils.implSymbol;
     var ctorRegistrySymbol = utils.ctorRegistrySymbol;
@@ -36281,7 +36559,7 @@ var require_redact = __commonJS({
     };
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.redactConnectionString = exports2.redactValidConnectionString = void 0;
-    var index_1 = __importStar(require_lib4());
+    var index_1 = __importStar(require_lib5());
     function redactValidConnectionString(inputUrl, options) {
       var _a, _b;
       const url = inputUrl.clone();
@@ -36344,7 +36622,7 @@ var require_redact = __commonJS({
 });
 
 // node_modules/mongodb-connection-string-url/lib/index.js
-var require_lib4 = __commonJS({
+var require_lib5 = __commonJS({
   "node_modules/mongodb-connection-string-url/lib/index.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
@@ -37254,7 +37532,7 @@ var require_encrypter = __commonJS({
         } catch (err) {
           throw new error_1.MongoMissingDependencyError("Auto-encryption requested, but the module is not installed. Please add `mongodb-client-encryption` as a dependency of your project");
         }
-        AutoEncrypterClass = mongodbClientEncryption.extension(require_lib5()).AutoEncrypter;
+        AutoEncrypterClass = mongodbClientEncryption.extension(require_lib6()).AutoEncrypter;
       }
     };
     exports2.Encrypter = Encrypter;
@@ -37269,7 +37547,7 @@ var require_connection_string = __commonJS({
     exports2.DEFAULT_OPTIONS = exports2.OPTIONS = exports2.parseOptions = exports2.checkTLSOptions = exports2.resolveSRVRecord = void 0;
     var dns = require("dns");
     var fs = require("fs");
-    var mongodb_connection_string_url_1 = require_lib4();
+    var mongodb_connection_string_url_1 = require_lib5();
     var url_1 = require("url");
     var mongo_credentials_1 = require_mongo_credentials();
     var providers_1 = require_providers();
@@ -47104,7 +47382,7 @@ var require_gridfs = __commonJS({
 });
 
 // node_modules/mongodb/lib/index.js
-var require_lib5 = __commonJS({
+var require_lib6 = __commonJS({
   "node_modules/mongodb/lib/index.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
@@ -47450,7 +47728,7 @@ var require_lib5 = __commonJS({
 var require_binary2 = __commonJS({
   "node_modules/mongoose/lib/drivers/node-mongodb-native/binary.js"(exports2, module2) {
     "use strict";
-    var Binary = require_lib5().Binary;
+    var Binary = require_lib6().Binary;
     module2.exports = exports2 = Binary;
   }
 });
@@ -47649,7 +47927,7 @@ var require_mongooseError = __commonJS({
 var require_objectid2 = __commonJS({
   "node_modules/mongoose/lib/drivers/node-mongodb-native/objectid.js"(exports2, module2) {
     "use strict";
-    var ObjectId2 = require_lib5().ObjectId;
+    var ObjectId2 = require_lib6().ObjectId;
     module2.exports = exports2 = ObjectId2;
   }
 });
@@ -48019,7 +48297,7 @@ var require_stringToParts = __commonJS({
 });
 
 // node_modules/mpath/lib/index.js
-var require_lib6 = __commonJS({
+var require_lib7 = __commonJS({
   "node_modules/mpath/lib/index.js"(exports2) {
     var stringToParts = require_stringToParts();
     var ignoreProperties = ["__proto__", "constructor", "prototype"];
@@ -48220,7 +48498,7 @@ var require_lib6 = __commonJS({
 var require_mpath = __commonJS({
   "node_modules/mpath/index.js"(exports2, module2) {
     "use strict";
-    module2.exports = exports2 = require_lib6();
+    module2.exports = exports2 = require_lib7();
   }
 });
 
@@ -48871,9 +49149,9 @@ var require_browser2 = __commonJS({
   }
 });
 
-// ../node_modules/has-flag/index.js
+// ../../node_modules/has-flag/index.js
 var require_has_flag = __commonJS({
-  "../node_modules/has-flag/index.js"(exports2, module2) {
+  "../../node_modules/has-flag/index.js"(exports2, module2) {
     "use strict";
     module2.exports = (flag, argv) => {
       argv = argv || process.argv;
@@ -48885,9 +49163,9 @@ var require_has_flag = __commonJS({
   }
 });
 
-// ../node_modules/supports-color/index.js
+// ../../node_modules/supports-color/index.js
 var require_supports_color = __commonJS({
-  "../node_modules/supports-color/index.js"(exports2, module2) {
+  "../../node_modules/supports-color/index.js"(exports2, module2) {
     "use strict";
     var os = require("os");
     var hasFlag = require_has_flag();
@@ -63346,7 +63624,7 @@ var require_collection5 = __commonJS({
     "use strict";
     var MongooseCollection = require_collection2();
     var MongooseError = require_mongooseError();
-    var Collection = require_lib5().Collection;
+    var Collection = require_lib6().Collection;
     var ObjectId2 = require_objectid2();
     var getConstructorName = require_getConstructorName();
     var stream = require("stream");
@@ -63625,7 +63903,7 @@ var require_collection5 = __commonJS({
 var require_decimal1285 = __commonJS({
   "node_modules/mongoose/lib/drivers/node-mongodb-native/decimal128.js"(exports2, module2) {
     "use strict";
-    module2.exports = require_lib5().Decimal128;
+    module2.exports = require_lib6().Decimal128;
   }
 });
 
@@ -63633,7 +63911,7 @@ var require_decimal1285 = __commonJS({
 var require_ReadPreference = __commonJS({
   "node_modules/mongoose/lib/drivers/node-mongodb-native/ReadPreference.js"(exports2, module2) {
     "use strict";
-    var mongodb = require_lib5();
+    var mongodb = require_lib6();
     var ReadPref = mongodb.ReadPreference;
     module2.exports = function readPref(pref, tags) {
       if (Array.isArray(pref)) {
@@ -63964,7 +64242,7 @@ var require_connection2 = __commonJS({
     var promiseOrCallback = require_promiseOrCallback();
     var get = require_get();
     var immediate = require_immediate();
-    var mongodb = require_lib5();
+    var mongodb = require_lib6();
     var pkg = require_package2();
     var utils = require_utils8();
     var processConnectionOptions = require_processConnectionOptions();
@@ -69674,7 +69952,7 @@ var require_lookupLocalFields = __commonJS({
 });
 
 // node_modules/sift/lib/index.js
-var require_lib7 = __commonJS({
+var require_lib8 = __commonJS({
   "node_modules/sift/lib/index.js"(exports2, module2) {
     (function(global2, factory) {
       typeof exports2 === "object" && typeof module2 !== "undefined" ? factory(exports2) : typeof define === "function" && define.amd ? define(["exports"], factory) : (global2 = global2 || self, factory(global2.sift = {}));
@@ -70460,7 +70738,7 @@ var require_lib7 = __commonJS({
 // node_modules/sift/index.js
 var require_sift = __commonJS({
   "node_modules/sift/index.js"(exports2, module2) {
-    var lib = require_lib7();
+    var lib = require_lib8();
     module2.exports = lib.default;
     Object.assign(module2.exports, lib);
   }
@@ -74806,7 +75084,7 @@ var require_document_provider = __commonJS({
 });
 
 // node_modules/mongoose/lib/index.js
-var require_lib8 = __commonJS({
+var require_lib9 = __commonJS({
   "node_modules/mongoose/lib/index.js"(exports2, module2) {
     "use strict";
     require_driver().set(require_node_mongodb_native());
@@ -75118,7 +75396,7 @@ var require_lib8 = __commonJS({
     };
     Mongoose.prototype.CastError = require_cast();
     Mongoose.prototype.SchemaTypeOptions = require_SchemaTypeOptions();
-    Mongoose.prototype.mongo = require_lib5();
+    Mongoose.prototype.mongo = require_lib6();
     Mongoose.prototype.mquery = require_mquery();
     Mongoose.prototype.sanitizeFilter = sanitizeFilter;
     Mongoose.prototype.trusted = trusted;
@@ -75135,7 +75413,7 @@ var require_lib8 = __commonJS({
 var require_mongoose = __commonJS({
   "node_modules/mongoose/index.js"(exports2, module2) {
     "use strict";
-    var mongoose2 = require_lib8();
+    var mongoose2 = require_lib9();
     module2.exports = mongoose2;
     module2.exports.default = mongoose2;
     module2.exports.mongoose = mongoose2;
@@ -82227,6 +82505,7 @@ var require_crypto_js = __commonJS({
 // functions/api.js
 var import_express4 = __toModule(require_express2());
 var import_body_parser = __toModule(require_body_parser());
+var import_cors = __toModule(require_lib3());
 var import_serverless_http = __toModule(require_serverless_http());
 
 // routes/auth.js
@@ -82243,9 +82522,10 @@ import_mongoose.default.connect("mongodb+srv://tungxm123:123qwe@cluster0.vtigv.m
 var Schema = import_mongoose.default.Schema;
 var CardSchema = new Schema({
   title: { type: String, required: true },
-  seri: { type: String, required: true, unique: true },
+  value: { type: Number, required: true },
+  price: { type: Number, required: true },
   code: { type: String, required: true, unique: true },
-  value: { type: Number, required: true }
+  seri: { type: String, required: true, unique: true }
 }, { timestamps: true, collection: "cards" });
 var UserSchema = new Schema({
   username: { type: String, required: true, unique: true },
@@ -82284,7 +82564,7 @@ var generateToken = (user2, tokenLife) => {
     });
   });
 };
-var verifyToken2 = (token) => {
+var verifyToken = (token) => {
   return new Promise((resolve, reject) => {
     import_jsonwebtoken.default.verify(token, SECRET, (error, decoded) => {
       if (error) {
@@ -82331,8 +82611,14 @@ auth.get("/register", async (req, res) => {
     res.status(403).json({ message: "Username ho\u1EB7c Email \u0111\xE3 t\u1ED3n t\u1EA1i" });
   }
 });
-auth.post("/verify", (req, res) => {
-  res.json({ message: `Verify Token` });
+auth.post("/verify", async (req, res) => {
+  let { token } = req.body;
+  try {
+    let encode = await verifyToken(token);
+    res.status(200).json(encode);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 var auth_default = auth;
 
@@ -82351,33 +82637,34 @@ var user_default = user;
 var import_express3 = __toModule(require_express2());
 var card = import_express3.default.Router();
 card.post("/add", async (req, res) => {
-  const { title, seri, code, value } = req.body;
-  let i = Number(value);
+  const { title: title2, value, price, code, seri } = req.body;
+  let nValue = Number(value);
+  let nPrice = Number(price);
   try {
-    await Card.create({ title, seri, code, value: i });
+    await Card.create({ title: title2, value: nValue, price: nPrice, code, seri });
     res.status(200).json({ message: "Add card success" });
   } catch (err) {
     return res.status(500).json({ err, message: "Th\u1EBB \u0111\xE3 t\u1ED3n t\u1EA1i" });
   }
 });
 card.get("/add/:title/:seri/:code/:value/:sign", async (req, res) => {
-  const { title, seri, code, value, sign } = req.params;
+  const { title: title2, seri, code, value, sign } = req.params;
   let i = Number(value);
   try {
-    let token = await verifyToken2(sign);
-    await Card.create({ title, seri, code, value: i });
+    let token = await verifyToken(sign);
+    await Card.create({ title: title2, seri, code, value: i });
     res.status(200).json({ message: "Add card success" });
   } catch (err) {
-    res.status(500).json({ err });
+    res.status(500).json(err);
   }
 });
 card.post("/buy", async (req, res) => {
-  let { title, value } = req.body;
+  let { title: title2, value } = req.body;
   try {
-    let card2 = await Card.findOne({ title, value });
+    let card2 = await Card.findOne({ title: title2, value });
     let cardData = { seri: card2.seri, code: card2.code, value: card2.value };
     await Card.findByIdAndDelete(card2._id);
-    res.status(200).json({ message: `Succes: Buy ${value}k ${title}`, cardData });
+    res.status(200).json({ message: `Succes: Buy ${value}k ${title2}`, cardData });
   } catch (err) {
     res.status(500).json({ message: "H\u1EBFt h\xE0ng" });
   }
@@ -82395,13 +82682,21 @@ card.get("/buy/:title/:value/:sign", async (req, res) => {
   } else
     return res.status(500).json({ message: "Signature is not valid" });
 });
-card.get("/get/:title", async (req, res) => {
-  let { title } = req.params;
+card.get("/get", async (req, res) => {
   try {
-    let cards = await Card.find({ title });
-    res.status(200).json({ message: `Success: Get ${title} cards`, cards });
+    let cards = await Card.find();
+    res.status(200).json({ cards, message: "Get cards success" });
   } catch (err) {
     res.status(500).json({ message: `Failure: Get ${title} cards`, err });
+  }
+});
+card.get("/get/:title", async (req, res) => {
+  let { title: title2 } = req.params;
+  try {
+    let cards = await Card.find({ title: title2 });
+    res.status(200).json({ message: `Success: Get ${title2} cards`, cards });
+  } catch (err) {
+    res.status(500).json({ message: `Failure: Get ${title2} cards`, err });
   }
 });
 var card_default = card;
@@ -82411,6 +82706,7 @@ var app = (0, import_express4.default)();
 var main = import_express4.default.Router();
 app.use(import_body_parser.default.urlencoded({ extended: false }));
 app.use(import_body_parser.default.json());
+app.use((0, import_cors.default)());
 main.get("/", (req, res) => {
   res.json({ message: "Hello World!" });
 });
@@ -82419,6 +82715,11 @@ app.use("/auth", auth_default);
 app.use("/user", user_default);
 app.use("/card", card_default);
 module.exports.handler = (0, import_serverless_http.default)(app);
+/*
+object-assign
+(c) Sindre Sorhus
+@license MIT
+*/
 /*!
  * 1) Apply backwards compatible find/findOne behavior to sub documents
  *
